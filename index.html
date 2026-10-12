@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Лабораторная работа №2 — Проверка выражений на регулярность</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="app-header">
+      <div>
+        <span class="badge-tag">Лабораторная работа №2</span>
+      </div>
+      <h1>Инструмент проверки на регулярность</h1>
+      <p>
+        Специализированный помощник для синтаксического анализа регулярных выражений,
+        проверки их корректности и поиска совпадений в тексте с выделением найденных фрагментов.
+      </p>
+    </header>
+
+    <!-- Main Card -->
+    <div class="card">
+      <h2 class="card-title">
+        <span>⚙️</span> Входные данные
+      </h2>
+
+      <!-- Presets for fast testing -->
+      <div class="presets-group">
+        <div class="presets-label">Готовые примеры для демонстрации:</div>
+        <div class="presets-buttons">
+          <button type="button" class="preset-btn" data-preset="email">📧 Email адреса</button>
+          <button type="button" class="preset-btn" data-preset="phone">📞 Номера телефонов</button>
+          <button type="button" class="preset-btn" data-preset="numbers">🔢 Числа \d{2,4}</button>
+          <button type="button" class="preset-btn" data-preset="cyrillic">🇷🇺 Кириллица [А-Яа-я]+</button>
+          <button type="button" class="preset-btn" data-preset="animals">🐾 Альтернатива (cat|dog)</button>
+          <button type="button" class="preset-btn" data-preset="nomatch">🚫 Нет совпадений</button>
+          <button type="button" class="preset-btn btn-invalid" data-preset="err-paren">⚠️ Ошибка: скобка (abc</button>
+          <button type="button" class="preset-btn btn-invalid" data-preset="err-star">⚠️ Ошибка: висящий *abc</button>
+          <button type="button" class="preset-btn btn-invalid" data-preset="err-range">⚠️ Ошибка: диапазон [z-a]</button>
+          <button type="button" class="preset-btn btn-invalid" data-preset="err-curly">⚠️ Ошибка: {5,2}</button>
+        </div>
+      </div>
+
+      <!-- Input Form -->
+      <form id="checker-form">
+        <div class="form-group">
+          <label for="pattern-input" class="form-label">
+            <span>Регулярное выражение (шаблон):</span>
+            <span class="label-hint">Поддерживает *, +, ?, {n,m}, [a-z], (..|..), \d, \w, \s, ^, $</span>
+          </label>
+          <input 
+            type="text" 
+            id="pattern-input" 
+            class="input-control input-mono" 
+            placeholder="Например: [a-zA-Z0-9_]+@[a-zA-Z0-9_]+\.[a-zA-Z]+"
+            autocomplete="off"
+            spellcheck="false"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="text-input" class="form-label">
+            <span>Строка (текст для поиска):</span>
+            <span class="label-hint">Произвольный текст для сопоставления с выражением</span>
+          </label>
+          <textarea 
+            id="text-input" 
+            class="input-control" 
+            placeholder="Введите произвольный текст для проверки..."
+            rows="4"
+            spellcheck="false"
+          ></textarea>
+        </div>
+
+        <div class="button-row">
+          <button type="submit" id="btn-check" class="btn btn-primary">
+            <span>🔍</span> Проверить на регулярность
+          </button>
+          <button type="button" id="btn-clear" class="btn btn-secondary">
+            Очистить поля
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Alert Message Area (Warnings & Errors) -->
+    <div id="alert-container"></div>
+
+    <!-- Result View Section -->
+    <div id="result-section" class="result-section">
+      <!-- Highlighting Card -->
+      <div class="card">
+        <h2 class="card-title">
+          <span>🎯</span> Результат поиска в тексте
+        </h2>
+
+        <div class="stats-bar" id="stats-bar">
+          <!-- Dynamic stats -->
+        </div>
+
+        <div class="form-label">Текст с выделенными совпадениями:</div>
+        <div id="highlight-viewer" class="highlight-box"></div>
+
+        <!-- Table of found matches -->
+        <div id="matches-table-container" class="matches-list" style="display: none;">
+          <div class="matches-list-header">Список обнаруженных совпадений</div>
+          <table class="matches-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Значение</th>
+                <th>Начало</th>
+                <th>Конец</th>
+                <th>Длина</th>
+              </tr>
+            </thead>
+            <tbody id="matches-table-body">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- AST Breakdown Card -->
+      <div class="card" id="breakdown-card">
+        <h2 class="card-title">
+          <span>📋</span> Синтаксический разбор выражения
+        </h2>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 12px;">
+          Структура выражения, построенная лексером и синтаксическим анализатором:
+        </p>
+        <ul id="breakdown-list" class="breakdown-list">
+          <!-- Dynamically populated -->
+        </ul>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="info-footer">
+      Лабораторная работа №2 — Регулярные выражения
+    </footer>
+  </div>
+
+  <!-- Модули и классы движка -->
+  <script src="src/CharClassifier.js"></script>
+  <script src="src/TokenType.js"></script>
+  <script src="src/Token.js"></script>
+  <script src="src/AstNodes.js"></script>
+  <script src="src/Lexer.js"></script>
+  <script src="src/Parser.js"></script>
+  <script src="src/RegexMatch.js"></script>
+  <script src="src/RegexMatcher.js"></script>
+  <script src="src/SyntaxValidator.js"></script>
+  <script src="regex-engine.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
